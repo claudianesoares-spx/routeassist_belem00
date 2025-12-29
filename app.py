@@ -1,3 +1,5 @@
+import streamlit as st
+import pandas as pd
 import unicodedata
 import re
 
@@ -15,10 +17,8 @@ def normalizar_texto(texto):
 # ---------------- CONFIGURAÇÃO DA PÁGINA ----------------
 st.set_page_config(
     page_title="SPX | Consulta de Rotas",
-    page_icon="📦",
     layout="centered"
 )
-
 # ---------------- ESTILO SPX ----------------
 st.markdown("""
 <style>
@@ -121,5 +121,6 @@ st.markdown("""
     Base atualizada diariamente após alocação
 </div>
 """, unsafe_allow_html=True)
+
 
 
