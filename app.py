@@ -46,7 +46,9 @@ nome = st.text_input("Nome completo do motorista")
 if nome:
     nome_busca = normalizar_texto(nome)
 
-    resultado = df[df["nome_normalizado"] == nome_busca]
+    resultado = df[
+    df["nome_normalizado"].str.contains(nome_busca, na=False)
+]
 
     if not resultado.empty:
         rota = resultado.iloc[0]["rota"]
@@ -59,5 +61,6 @@ if nome:
         """)
     else:
         st.warning("⚠️ Nenhuma rota encontrada para este nome")
+
 
 
