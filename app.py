@@ -62,33 +62,14 @@ st.markdown("""
     box-shadow: 0 6px 18px rgba(0,0,0,0.05);
     margin-bottom: 30px;
 }
-.header-title { font-size: 32px; font-weight: 700; color: #1f2937; }
-.header-sub { font-size: 14px; color: #6b7280; margin-top: 4px; }
-.header-info { margin-top: 14px; font-size: 15px; color: #374151; }
-.result-card {
-    background: white;
-    padding: 20px;
-    border-radius: 14px;
-    border: 1px solid #e5e7eb;
-    margin-bottom: 16px;
-}
-.result-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #ff7a00;
-    margin-bottom: 12px;
-}
 </style>
 """, unsafe_allow_html=True)
 
 # ================= CABEÇALHO =================
 st.markdown("""
 <div class="header-card">
-    <div class="header-title">🚚 SPX | Consulta de Rotas</div>
-    <div class="header-sub">Shopee Express • Operação Logística</div>
-    <div class="header-info">
-        Consulta disponível <strong>somente após a alocação das rotas</strong>.
-    </div>
+<h2>🚚 SPX | Consulta de Rotas</h2>
+<p>Consulta disponível somente após a alocação das rotas.</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -108,27 +89,30 @@ if senha:
     else:
         st.sidebar.error("Senha incorreta")
 
-# ================= PAINEL ADMINISTRATIVO =================
+# ================= PAINEL ADMIN =================
 if nivel:
     st.sidebar.markdown(f"**🚦 Status atual:** `{config['status_site']}`")
 
-    # Botões Abrir/Fechar apenas após login
     col1, col2 = st.sidebar.columns(2)
+
     if col1.button("🟢 Abrir"):
         config["status_site"] = "ABERTO"
         salvar_config()
-        st.experimental_rerun()
+        st.rerun()
+
     if col2.button("🔴 Fechar"):
         config["status_site"] = "FECHADO"
         salvar_config()
-        st.experimental_rerun()
+        st.rerun()
 
     # MASTER ONLY
     if nivel == "MASTER":
         st.sidebar.markdown("---")
         st.sidebar.markdown("### 🔑 Alterar Senhas")
+
         nova_master = st.sidebar.text_input("Nova senha MASTER", type="password")
         nova_operacional = st.sidebar.text_input("Nova senha OPERACIONAL", type="password")
+
         if st.sidebar.button("Salvar Senhas"):
             if nova_master:
                 config["senha_master"] = nova_master
@@ -138,7 +122,8 @@ if nivel:
             st.sidebar.success("Senhas atualizadas")
 
         st.sidebar.markdown("---")
-        st.sidebar.markdown("### 📜 Histórico de Acessos")
+        st.sidebar.markdown("### 📜 Histórico")
+
         if os.path.exists(LOG_FILE):
             st.sidebar.dataframe(pd.read_csv(LOG_FILE), use_container_width=True)
         else:
@@ -149,8 +134,10 @@ if config["status_site"] == "FECHADO":
     st.warning("🚫 Consulta temporariamente indisponível.")
     st.stop()
 
-# ================= BUSCA =================
-nome_busca = st.text_input("Digite o **nome completo ou parcial** do motorista:")
+# ================= CONSULTA =================
+st.markdown("### 🔍 Consulta")
 
-if nome_busca:
-    st.warning("⚠️ Base de dados ainda não conectada.")
+nome = st.text_input("Digite o nome do motorista")
+
+if nome:
+    st.info("⚠️ Base de dados ainda não conectada.")
