@@ -68,8 +68,8 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ---------------- URL DA PLANILHA ----------------
-URL_PLANILHA = "https://docs.google.com/spreadsheets/d/1x4P8sHQ8cdn7tJCDRjPP8qm4aFIKJ1tx/export?format=xlsx"
+# ---------------- URL DA PLANILHA (ATUALIZADA) ----------------
+URL_PLANILHA = "https://docs.google.com/spreadsheets/d/1F8HC2D8UxRc5R_QBdd-zWu7y6Twqyk3r0NTPN0HCWUI/export?format=xlsx"
 SENHA_ADMIN = "LPA2026"
 
 # ---------------- CONTROLE (ABERTO / FECHADO) ----------------
@@ -96,7 +96,7 @@ def carregar_base():
 
 df, ultima_atualizacao = carregar_base()
 
-# ---------------- SIDEBAR ADMIN (INDEPENDENTE DO STATUS) ----------------
+# ---------------- SIDEBAR ADMIN (SEMPRE VISÍVEL) ----------------
 with st.sidebar:
     st.markdown("## 🔒 Área Administrativa")
     st.markdown("---")
@@ -121,7 +121,7 @@ with st.sidebar:
     elif senha:
         st.error("Senha incorreta")
 
-# ---------------- BLOQUEIO APENAS PARA USUÁRIO COMUM ----------------
+# ---------------- BLOQUEIO PARA USUÁRIO COMUM ----------------
 if status_site == "FECHADO":
     st.warning("🚫 Consulta temporariamente indisponível. Aguarde a liberação das rotas.")
     st.stop()
