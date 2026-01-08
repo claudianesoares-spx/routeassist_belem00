@@ -137,19 +137,22 @@ if config["status_site"] == "FECHADO":
     st.warning("🚫 Consulta indisponível no momento.")
     st.stop()
 
-# ================= CONSULTA =================
-st.markdown("### 🔍 Consulta")
+# ================= CONSULTA SEGURA =================
+st.markdown("### 🔍 Consulta de Rotas")
 
-nome = st.text_input("Digite o nome do motorista")
+id_motorista = st.text_input("Digite seu ID de motorista")
 
-if nome:
+if id_motorista:
     url = "https://docs.google.com/spreadsheets/d/1F8HC2D8UxRc5R_QBdd-zWu7y6Twqyk3r0NTPN0HCWUI/export?format=xlsx"
     df = pd.read_excel(url)
 
-    resultado = df[df["Nome"].str.contains(nome, case=False, na=False)]
+    # Garantia de comparação correta
+    df["ID"] = df["ID"].astype(str)
+
+    resultado = df[df["ID"] == id_motorista.strip()]
 
     if resultado.empty:
-        st.warning("Nenhuma rota encontrada.")
+        st.warning("Nenhuma rota encontrada para este ID.")
     else:
         for _, row in resultado.iterrows():
             st.markdown(f"""
