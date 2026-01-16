@@ -6,8 +6,8 @@ from datetime import datetime
 
 # ================= CONFIGURAÇÃO DA PÁGINA =================
 st.set_page_config(
-    page_title="SPX | Consulta de Rotas",
-    page_icon="🚚",
+    page_title="RouteAssist | Apoio Operacional",
+    page_icon="🧭",
     layout="centered"
 )
 
@@ -81,8 +81,11 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ================= CABEÇALHO =================
-st.title("🚚 SPX | Consulta de Rotas")
-st.markdown("Consulta disponível **somente após a alocação das rotas**.")
+st.title("🧭 RouteAssist")
+st.markdown(
+    "Ferramenta de **apoio operacional** para alocação e redistribuição de rotas, "
+    "atuando de forma complementar ao sistema oficial **SPX**."
+)
 st.divider()
 
 # ================= SIDEBAR / ADMIN =================
@@ -129,7 +132,7 @@ if config["status_site"] == "FECHADO":
     st.stop()
 
 # ================= CONSULTA =================
-st.markdown("### 🔍 Consulta de Rotas")
+st.markdown("### 🔍 Consulta Operacional de Rotas")
 
 id_motorista = st.text_input("Digite seu ID de motorista")
 
@@ -229,3 +232,16 @@ if id_motorista:
                             </a>
                         </div>
                         """, unsafe_allow_html=True)
+
+# ================= ASSINATURA =================
+st.markdown(
+    """
+    <hr>
+    <div style="text-align: center; color: #888; font-size: 0.85em;">
+        <strong>RouteAssist</strong><br>
+        Concept & Development — Claudiane Vieira<br>
+        Since Dec/2025
+    </div>
+    """,
+    unsafe_allow_html=True
+)
