@@ -11,24 +11,21 @@ st.set_page_config(
     layout="centered"
 )
 
-# ================= CACHE (SOMENTE ADMIN | 60s) =================
-@st.cache_data(ttl=60, show_spinner=False)
-def carregar_rotas_admin(url):
+# ================= LEITURA DAS ROTAS (SEM CACHE) =================
+def carregar_rotas(url):
     df = pd.read_excel(url)
     df["ID"] = df["ID"].astype(str).str.strip()
     return df
 
-# ================= ARQUIVO DE PERSISTÊNCIA =================
+# ================= ARQUIVO DE CONFIG =================
 CONFIG_FILE = "config.json"
 
-# ================= CONFIG PADRÃO =================
 DEFAULT_CONFIG = {
     "status_site": "FECHADO",
     "senha_master": "MASTER2026",
     "historico": []
 }
 
-# ================= LOAD / SAVE =================
 def load_config():
     if not os.path.exists(CONFIG_FILE):
         with open(CONFIG_FILE, "w", encoding="utf-8") as f:
@@ -43,7 +40,7 @@ def save_config(cfg):
 
 config = load_config()
 
-# ================= FUNÇÃO LOG =================
+# ================= LOG =================
 def registrar_acao(usuario, acao):
     config["historico"].append({
         "data": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
@@ -52,7 +49,7 @@ def registrar_acao(usuario, acao):
     })
     save_config(config)
 
-# ================= REGRA DE HORÁRIO (10:05) =================
+# ================= REGRA DE HORÁRIO =================
 agora = datetime.now()
 liberar_dobra = (
     agora.hour > 10 or
@@ -70,20 +67,6 @@ st.markdown("""
     border-left: 6px solid #ff7a00;
     margin-bottom: 16px;
 }
-.card h4 {
-    margin-bottom: 12px;
-}
-.card p {
-    margin: 4px 0;
-    font-size: 15px;
-}
-.card a {
-    display: inline-block;
-    margin-top: 10px;
-    color: #ff7a00;
-    font-weight: bold;
-    text-decoration: none;
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -95,7 +78,7 @@ st.markdown(
 )
 st.divider()
 
-# ================= SIDEBAR / ADMIN =================
+# ================= SIDEBAR ADMIN =================
 nivel = None
 
 with st.sidebar:
@@ -128,17 +111,17 @@ with st.sidebar:
                     registrar_acao(nivel, "FECHOU CONSULTA")
                     st.warning("Consulta FECHADA")
 
-# ================= STATUS ATUAL =================
+# ================= STATUS =================
 st.markdown(f"### 📌 Status atual: **{config['status_site']}**")
 st.divider()
 
-# ================= PAINEL OPERACIONAL (ADMIN ONLY) =================
+# ================= PAINEL OPERACIONAL =================
 if nivel in ["ADMIN", "MASTER"]:
 
     url_rotas = "https://docs.google.com/spreadsheets/d/1F8HC2D8UxRc5R_QBdd-zWu7y6Twqyk3r0NTPN0HCWUI/export?format=xlsx"
-    df_admin = carregar_rotas_admin(url_rotas)
+    df_admin = carregar_rotas(url_rotas)
 
-    rotas_disponiveis_admin = df_admin[
+    rotas_disponiveis = df_admin[
         df_admin["ID"].isna() |
         (df_admin["ID"] == "") |
         (df_admin["ID"].str.lower() == "nan") |
@@ -148,35 +131,52 @@ if nivel in ["ADMIN", "MASTER"]:
     st.markdown("## 📊 Painel Operacional")
 
     st.info(f"""
-📌 **Status do sistema:** {config['status_site']}  
-🕒 **Horário atual:** {agora.strftime('%H:%M')}  
+📌 **Status:** {config['status_site']}  
+🕒 **Hora:** {agora.strftime('%H:%M')}  
 📦 **Dobra liberada:** {"SIM" if liberar_dobra else "NÃO"}
 """)
 
     c1, c2, c3 = st.columns(3)
-    c1.metric("🚚 Total de rotas", len(df_admin))
-    c2.metric("✅ Atribuídas", len(df_admin) - len(rotas_disponiveis_admin))
-    c3.metric("📦 Disponíveis", len(rotas_disponiveis_admin))
+    c1.metric("🚚 Total", len(df_admin))
+    c2.metric("✅ Atribuídas", len(df_admin) - len(rotas_disponiveis))
+    c3.metric("📦 Disponíveis", len(rotas_disponiveis))
 
-    if not rotas_disponiveis_admin.empty:
+    if not rotas_disponiveis.empty:
         st.dataframe(
-            rotas_disponiveis_admin[
-                ["Rota", "Cidade", "Bairro", "Tipo Veiculo"]
-            ].sort_values(by=["Cidade", "Bairro"]),
+            rotas_disponiveis[["Rota", "Cidade", "Bairro", "Tipo Veiculo"]],
             use_container_width=True,
             hide_index=True
         )
+    else:
+        st.success("Nenhuma rota disponível 🎉")
 
     st.divider()
 
-# ================= BLOQUEIO PARA DRIVERS =================
+# ================= BLOQUEIO DRIVER =================
 if config["status_site"] == "FECHADO":
     st.warning("🚫 Consulta indisponível no momento.")
     st.stop()
 
-# ================= CONSULTA DRIVER (ORIGINAL / SEM CACHE) =================
+# ================= CONSULTA DRIVER =================
 st.markdown("### 🔍 Consulta Operacional de Rotas")
+
 id_motorista = st.text_input("Digite seu ID de motorista")
 
-# 🔒 A PARTIR DAQUI: É EXATAMENTE O SEU CÓDIGO ORIGINAL
-# (sem cache, sem painel, sem alteração)
+if id_motorista:
+    url_rotas = "https://docs.google.com/spreadsheets/d/1F8HC2D8UxRc5R_QBdd-zWu7y6Twqyk3r0NTPN0HCWUI/export?format=xlsx"
+    df = carregar_rotas(url_rotas)
+
+    resultado = df[df["ID"] == id_motorista.strip()]
+
+    if resultado.empty:
+        st.error("❌ Nenhuma rota encontrada para este ID.")
+    else:
+        for _, row in resultado.iterrows():
+            st.markdown(f"""
+<div class="card">
+<b>🚚 Rota:</b> {row['Rota']}<br>
+<b>📍 Cidade:</b> {row['Cidade']}<br>
+<b>📦 Bairro:</b> {row['Bairro']}<br>
+<b>🚗 Veículo:</b> {row['Tipo Veiculo']}
+</div>
+""", unsafe_allow_html=True)
