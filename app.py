@@ -64,7 +64,7 @@ st.markdown("""
     margin-bottom: 16px;
 }
 .card h4 {
-    margin-bottom: 8px;
+    margin-bottom: 12px;
 }
 .card p {
     margin: 4px 0;
@@ -76,11 +76,6 @@ st.markdown("""
     color: #ff7a00;
     font-weight: bold;
     text-decoration: none;
-}
-.data-exp {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 10px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -140,23 +135,29 @@ id_motorista = st.text_input("Digite seu ID de motorista")
 
 if id_motorista:
     url_rotas = "https://docs.google.com/spreadsheets/d/1F8HC2D8UxRc5R_QBdd-zWu7y6Twqyk3r0NTPN0HCWUI/export?format=xlsx"
-    url_interesse = "https://docs.google.com/spreadsheets/d/1ux9UP_oJ9VTCTB_YMpvHr1VEPpFHdIBY2pudgehtTIE/export?format=xlsx&sheet=Planilha1"
+    url_interesse = "https://docs.google.com/spreadsheets/d/1ux9UP_oJ9VTCTB_YMpvHr1VEPpFHdIBY2pudgehtTIE/export?format=xlsx"
 
+    # ===== BASE DE ROTAS =====
     df = pd.read_excel(url_rotas)
     df["ID"] = df["ID"].astype(str).str.strip()
+    df["Data Exp."] = pd.to_datetime(df["Data Exp."], errors="coerce").dt.date
 
+    # ===== BASE DE DRIVERS ATIVOS =====
     df_drivers = pd.read_excel(url_rotas, sheet_name="DRIVERS ATIVOS", dtype=str)
     df_drivers["ID"] = df_drivers["ID"].str.strip()
     ids_ativos = set(df_drivers["ID"].dropna())
 
     id_motorista = id_motorista.strip()
 
+    # ===== VALIDAÇÃO DO ID =====
     if id_motorista not in ids_ativos:
-        st.warning("⚠️ ID não encontrado na base de motoristas ativos.")
+        st.error("❌ ID incorreto, favor verificar.")
         st.stop()
 
+    # ===== RESULTADOS DO MOTORISTA =====
     resultado = df[df["ID"] == id_motorista]
 
+    # ===== ROTAS DISPONÍVEIS =====
     rotas_disponiveis = df[
         df["ID"].isna() |
         (df["ID"] == "") |
@@ -164,29 +165,65 @@ if id_motorista:
         (df["ID"] == "-")
     ]
 
-    df_interesse = pd.read_excel(url_interesse)
+    # ===== PLANILHA INTERESSE =====
+    df_interesse = pd.read_excel(url_interesse, sheet_name="Time")
     df_interesse["ID"] = df_interesse["ID"].astype(str).str.strip()
     df_interesse["Controle 01"] = df_interesse["Controle 01"].astype(str).str.strip()
+    df_interesse["Data Exp."] = pd.to_datetime(df_interesse["Data Exp."], errors="coerce").dt.date
 
+    # ===== DRIVER COM ROTA =====
     if not resultado.empty:
         for _, row in resultado.iterrows():
+            data_exp = row["Data Exp."]
+            data_formatada = data_exp.strftime("%d/%m/%Y") if pd.notna(data_exp) else "-"
+
             st.markdown(f"""
             <div class="card">
                 <h4>🚚 Rota: {row['Rota']}</h4>
-                <div class="data-exp">📅 <strong>Data da Expedição:</strong> {row.get('Data Exp.', 'Não informada')}</div>
                 <p>👤 <strong>Motorista:</strong> {row['Nome']}</p>
                 <p>🚗 <strong>Placa:</strong> {row['Placa']}</p>
                 <p>🏙️ <strong>Cidade:</strong> {row['Cidade']}</p>
                 <p>📍 <strong>Bairro:</strong> {row['Bairro']}</p>
+                <p>📅 <strong>Data da Expedição:</strong> {data_formatada}</p>
             </div>
             """, unsafe_allow_html=True)
 
+        if liberar_dobra and not rotas_disponiveis.empty:
+            st.divider()
+            st.markdown("### 📦 Rotas disponíveis")
+
+            for cidade in rotas_disponiveis["Cidade"].unique():
+                with st.expander(f"🏙️ {cidade}"):
+                    for _, row in rotas_disponiveis[rotas_disponiveis["Cidade"] == cidade].iterrows():
+
+                        ja_clicou = not df_interesse[
+                            (df_interesse["ID"] == id_motorista) &
+                            (df_interesse["Controle 01"] == row["Rota"]) &
+                            (df_interesse["Data Exp."] == row["Data Exp."])
+                        ].empty
+
+                        if ja_clicou:
+                            st.markdown("""
+                            <div class="card">
+                                <p style="color: green; font-weight:bold;">✅ Você já clicou nesta rota hoje</p>
+                            </div>
+                            """, unsafe_allow_html=True)
+                        else:
+                            st.markdown("""
+                            <div class="card">
+                                <a target="_blank">👉 Tenho interesse nesta rota</a>
+                            </div>
+                            """, unsafe_allow_html=True)
+
 # ================= ASSINATURA =================
-st.markdown("""
-<hr>
-<div style="text-align: center; color: #888; font-size: 0.85em;">
-<strong>RouteAssist</strong><br>
-Concept & Development — Claudiane Vieira<br>
-Since Dec/2025
-</div>
-""", unsafe_allow_html=True)
+st.markdown(
+    """
+    <hr>
+    <div style="text-align: center; color: #888; font-size: 0.85em;">
+        <strong>RouteAssist</strong><br>
+        Concept & Development — Claudiane Vieira<br>
+        Since Dec/2025
+    </div>
+    """,
+    unsafe_allow_html=True
+)
