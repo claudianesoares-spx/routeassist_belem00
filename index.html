@@ -8,7 +8,7 @@
         body {
             margin: 0;
             height: 100vh;
-            background: #f5f6f8;
+            background: #f4f6f8;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -19,53 +19,46 @@
         .container {
             text-align: center;
             background: #ffffff;
-            padding: 45px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            padding: 48px 56px;
+            border-radius: 18px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.08);
             max-width: 420px;
-            width: 100%;
+            width: 90%;
         }
 
         h1 {
             margin-bottom: 8px;
-            font-size: 28px;
+            font-size: 32px;
+            color: #1f2d3d;
         }
 
         p {
             margin-top: 0;
-            color: #666;
-            font-size: 15px;
+            font-size: 16px;
+            color: #555;
         }
 
         .btn {
-            margin-top: 28px;
-            padding: 15px 32px;
-            font-size: 17px;
+            margin-top: 32px;
+            padding: 16px 36px;
+            font-size: 18px;
             font-weight: bold;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
-            background-color: #ee4d2d; /* vibe Shopee */
-            color: white;
-            transition: 0.25s;
+            background-color: #00c6ff;
+            color: #002b36;
+            transition: all 0.3s ease;
         }
 
         .btn:hover {
-            background-color: #d84428;
+            background-color: #00a8e8;
             transform: translateY(-2px);
-        }
-
-        .alert {
-            margin-top: 22px;
-            padding: 12px 14px;
-            background: #fff3cd;
-            color: #856404;
-            border-radius: 10px;
-            font-size: 14px;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.12);
         }
 
         .footer {
-            margin-top: 30px;
+            margin-top: 36px;
             font-size: 12px;
             color: #999;
         }
@@ -74,18 +67,13 @@
 
 <body>
     <div class="container">
-        <h1>🚚 RouteAssist · Belém</h1>
-        <p>Operational platform active.</p>
+        <h1>RouteAssist</h1>
+        <p>Operational support center – Belém</p>
 
         <button class="btn"
             onclick="window.open('https://routeassist-belem.streamlit.app/', '_blank')">
-            👉 Access Belém Operation
+            Access System
         </button>
-
-        <div class="alert">
-            ⚠️ During peak hours, loading may take a few seconds.<br>
-            Stability and security come first.
-        </div>
 
         <div class="footer">
             Created and developed by Claudiane Vieira · Dec 2025
