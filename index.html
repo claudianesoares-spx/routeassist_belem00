@@ -98,4 +98,31 @@
         const MAX_DELAY = 28;   
         const totalTime = Math.floor(Math.random() * (MAX_DELAY - MIN_DELAY + 1)) + MIN_DELAY;  
   
-        let progress = 3; // co
+        let progress = 3; // começa avançado  
+        const progressBar = document.getElementById("progressBar");  
+        const statusText = document.getElementById("statusText");  
+  
+        const intervalTime = (totalTime * 1000) / 100;  
+  
+        const interval = setInterval(() => {  
+            progress += 1;  
+  
+            // ===== ANIMAÇÃO NÃO LINEAR =====  
+            let eased = Math.pow(progress / 100, 0.65) * 100;  
+            progressBar.style.width = eased + "%";  
+  
+            // ===== STATUS DINÂMICO =====  
+            if (progress === 10) statusText.innerHTML = "🔍 Verificando conexão...";  
+            if (progress === 30) statusText.innerHTML = "📡 Sincronizando com o servidor...";  
+            if (progress === 55) statusText.innerHTML = "📦 Carregando dados operacionais...";  
+            if (progress === 80) statusText.innerHTML = "⏳ Quase lá... preparando interface...";  
+            if (progress === 95) statusText.innerHTML = "🚀 Finalizando...";  
+  
+            if (progress >= 100) {  
+                clearInterval(interval);  
+                window.location.href = "https://routeassist-belem.streamlit.app/";  
+            }  
+        }, intervalTime);  
+    </script>  
+</body>  
+</html>
