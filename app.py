@@ -88,19 +88,23 @@ st.markdown("""
 <style>
 .card {
     background-color: #ffffff;
-    padding: 10px 12px;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    padding: 12px 14px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     border-left: 4px solid #ff7a00;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
     font-size: 14px;
-    line-height: 1.3;
 }
 .card p { margin: 4px 0; }
 .card .flex-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+.card .titulo {
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #333;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -146,7 +150,7 @@ st.divider()
 if config["status_site"] == "FECHADO":
     st.warning(
         "🚫 A consulta está temporariamente indisponível.\n\n"
-        "Aguarde a liberação para visualizar rotas."
+        "Estamos organizando a operação, fiquem de olho nos grupos. Assim que liberar, as rotas aparecerão aqui automaticamente 🧡"
     )
     st.stop()
 
@@ -183,11 +187,12 @@ if st.session_state.consultado and st.session_state.id_motorista:
     rotas_motorista = df_rotas[df_rotas["ID"] == id_motorista]
 
     if not rotas_motorista.empty:
-        st.markdown("### 🚚 Suas rotas atribuídas")
+        st.markdown("### 🚚 Rota atribuída para você")
         for _, row in rotas_motorista.iterrows():
             data_fmt = row["Data Exp."].strftime("%d/%m/%Y") if pd.notna(row["Data Exp."]) else "-"
             st.markdown(f"""
             <div class="card">
+                <div class="titulo">🚚 Rota atribuída para você</div>
                 <div class="flex-row">
                     <span><strong>ROTA:</strong> {row['Rota']}</span>
                     <span><strong>PLACA:</strong> {row['Placa']}</span>
@@ -221,7 +226,7 @@ if st.session_state.consultado and st.session_state.id_motorista:
         st.markdown("### 📦 Rotas disponíveis")
 
         for cidade, df_cidade in rotas_disp.groupby("Cidade"):
-            with st.expander(f"🏙️ {cidade}", expanded=False):
+            with st.expander(f"🏙️ {cidade}"):
                 for _, row in df_cidade.iterrows():
                     data_fmt = row["Data Exp."].strftime("%d/%m/%Y") if pd.notna(row["Data Exp."]) else "-"
                     rota_key = f"{row['Rota']}_{row['Bairro']}_{data_fmt}"
@@ -235,34 +240,16 @@ if st.session_state.consultado and st.session_state.id_motorista:
                         f"&entry.1534916252=Tenho+Interesse"
                     )
 
-                    # ===== ÍCONE CORRETO POR TIPO DE VEÍCULO =====
-                    tipo = str(row["Tipo Veiculo"]).upper()
-
-                    if tipo == "PASSEIO":
-                        icone = "🚗"
-                    elif tipo in ["UTILITARIO", "UTILITÁRIO", "VAN", "FIORINO"]:
-                        icone = "🚚"
-                    else:
-                        icone = "🏍️"
-
                     st.markdown(f"""
                     <div class="card">
                         <div class="flex-row">
-                            <span>📍 Bairro: {row['Bairro']}</span>
-                            <span>{icone} {row['Tipo Veiculo']}</span>
+                            <span>📍 {row['Bairro']}</span>
+                            <span>🚚 {row['Tipo Veiculo']}</span>
                         </div>
                         <p>📅 Data: {data_fmt}</p>
+                        <a href="{form_url}" target="_blank">💚 Tenho interesse nesta rota</a>
                     </div>
                     """, unsafe_allow_html=True)
-
-                    if rota_key in st.session_state.interesses:
-                        st.success("✔ Interesse registrado. Não é necessário repetir.")
-                        st.markdown(f"[👉 Abrir formulário]({form_url})")
-                    else:
-                        if st.button("✋ Tenho interesse nesta rota", key=f"btn_{rota_key}"):
-                            st.session_state.interesses.add(rota_key)
-                            st.success("✔ Interesse registrado. Não é necessário repetir.")
-                            st.markdown(f"[👉 Abrir formulário]({form_url})")
 
 # ================= RODAPÉ =================
 st.markdown("""
