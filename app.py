@@ -63,7 +63,14 @@ def carregar_rotas(url):
     df = pd.read_csv(url)
     df.columns = df.columns.str.strip()
     df["ID"] = df["ID"].apply(limpar_id)
-    df["Data Exp."] = pd.to_datetime(df["Data Exp."], errors="coerce").dt.date
+
+    # ✅ CORREÇÃO DEFINITIVA DE DATA (DD/MM/YYYY)
+    df["Data Exp."] = pd.to_datetime(
+        df["Data Exp."],
+        format="%d/%m/%Y",
+        errors="coerce"
+    ).dt.date
+
     return df
 
 @st.cache_data(ttl=300)
@@ -229,7 +236,6 @@ if st.session_state.consultado and st.session_state.id_motorista:
             with st.expander(f"🏙️ {cidade}"):
                 for _, row in df_cidade.iterrows():
                     data_fmt = row["Data Exp."].strftime("%d/%m/%Y") if pd.notna(row["Data Exp."]) else "-"
-                    rota_key = f"{row['Rota']}_{row['Bairro']}_{data_fmt}"
 
                     form_url = (
                         f"{GOOGLE_FORM_URL}?usp=pp_url"
