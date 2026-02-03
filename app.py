@@ -16,7 +16,7 @@ CONFIG_FILE = "config.json"
 
 DEFAULT_CONFIG = {
     "status_site": "FECHADO",
-    "senha_master": "MASTER2026",
+    "senha_master": "<COLOQUE_SUA_SENHA_MASTER_AQUI>",
     "historico": []
 }
 
@@ -46,10 +46,9 @@ def registrar_acao(usuario, acao):
     save_config(config)
 
 # ================= URLs =================
-URL_ROTAS = "https://docs.google.com/spreadsheets/d/1F8HC2D8UxRc5R_QBdd-zWu7y6Twqyk3r0NTPN0HCWUI/export?format=csv&gid=1803149397"
-URL_DRIVERS = "https://docs.google.com/spreadsheets/d/1F8HC2D8UxRc5R_QBdd-zWu7y6Twqyk3r0NTPN0HCWUI/export?format=csv&gid=36116218"
-
-GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSffKb0EPcHCRXv-XiHhgk-w2bTGbt179fJkr879jNdp-AbTxg/viewform"
+URL_ROTAS = "<URL_DA_PLANILHA_DE_ROTAS_AQUI>"
+URL_DRIVERS = "<URL_DA_PLANILHA_DE_DRIVERS_AQUI>"
+GOOGLE_FORM_URL = "<URL_DO_FORMULARIO_GOOGLE_AQUI>"
 
 # ================= FUNÇÕES =================
 def limpar_id(valor):
@@ -130,7 +129,7 @@ with st.sidebar:
         if senha == config["senha_master"]:
             nivel = "MASTER"
             st.success("Acesso MASTER liberado")
-        elif senha == "LPA2026":
+        elif senha == "<COLOQUE_SUA_SENHA_ADMIN_AQUI>":
             nivel = "ADMIN"
             st.success("Acesso ADMIN liberado")
         elif senha:
